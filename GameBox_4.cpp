@@ -1,33 +1,39 @@
 #include <iostream>
+#include "Hit_Diglett.h"
+
 using namespace std;
 
 int main(){
     int num;
     cout << endl << " === GAME BOX 4.0 === " << endl << endl;
     cout << "1. Clefairy Says" << endl;
-    cout << "2. Golpea a Diglett" << endl;
-    cout << "3. Corre Rattata Corre!!!" << endl;
+    cout << "2. Hit Diglett" << endl;
+    cout << "3. Run Rattata Run!!!" << endl;
     cout << "4. Rock Harden" << endl;
-    cout << "Selecciona el juego que quieres jugar: ";
+    cout << "Select the game you want to play: ";
 
     cin >> num;
 
     switch (num)
     {
     case 1:
-        //Funcion del juego de Clefairy Says
+        //Clefairy Says Game Function
         break;
     case 2:
-        //Funcion del juego de Golpe a Diglett
+
+        iniciarJuego();
+        return 0;
+
+        //Diglett Heist Game Function
         break;
     case 3:
-        //Funcion del juego de Corre Rattata Corre
+        //Function of the Run Rattata Run game
         break;
     case 4:
-        //Funcion del juego de Rock Harden
+        //Rock Harden Game Feature
         break;
     default:
-        cout << "Opcion no valida";
+        cout << "Invalid option";
         break;
     }
 return 0;
