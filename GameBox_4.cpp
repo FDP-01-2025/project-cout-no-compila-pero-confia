@@ -1,5 +1,6 @@
 #include <iostream>
-#include "Hit_Diglett.h"
+#include "sources/Hit_Diglett.h"
+#include "sources/Rock_Harden.h"
 
 using namespace std;
 
@@ -26,12 +27,19 @@ int main(){
 
         //Diglett Heist Game Function
         break;
+
     case 3:
         //Function of the Run Rattata Run game
         break;
+
     case 4:
+
+        iniciarJuego();
+        return 0;
+
         //Rock Harden Game Feature
         break;
+        
     default:
         cout << "Invalid option";
         break;
