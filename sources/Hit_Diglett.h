@@ -14,7 +14,7 @@ void mostrarGrid(int posicion) {
     system("cls");
     cout << "Hit Diglett (press the correct number)!\n\n";
 
-    int layout[9] = {7, 8, 9, 4, 5, 6, 1, 2, 3}; // Disposición tipo teclado numérico
+    int layout[9] = {7, 8, 9, 4, 5, 6, 1, 2, 3}; // Numeric keypad layout
 
     for (int i = 0; i < 9; ++i) {
         if (layout[i] == posicion) {
