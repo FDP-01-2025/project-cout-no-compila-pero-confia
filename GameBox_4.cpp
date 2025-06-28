@@ -34,7 +34,7 @@ int main(){
 
     case 4:
 
-        iniciarJuego();
+        RockHarden::runGame(15);
         return 0;
 
         //Rock Harden Game Feature
