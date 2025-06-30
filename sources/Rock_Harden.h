@@ -27,23 +27,36 @@ inline void showStatus(const Player& p1, const Player& p2) {
     cout << p2.name << " - Health: " << p2.health << " | Energy: " << p2.energy << "\n\n";
 }
 
+inline char getRandomKey() {
+    const string valid = "asdfghjklzxcvbnmqwertyuiop";
+    return valid[rand() % valid.size()];
+}
+
 inline void playRound(Player& p1, Player& p2) {
     p1.hardened = false;
     p2.hardened = false;
 
-    cout << "A rock is falling! Press [A] for " << p1.name << ", [L] for " << p2.name << "!\n";
-    Sleep(rand() % 2000 + 1000);
+    char keyP1 = getRandomKey();
+    char keyP2 = getRandomKey();
+
+    cout << "A rock is falling!\n";
+    cout << p1.name << ": PRESS [" << (char)toupper(keyP1) << "]  |  ";
+    cout << p2.name << ": PRESS [" << (char)toupper(keyP2) << "]\n";
+
+    Sleep(rand() % 2000 + 1000); // Delay aleatorio antes del "NOW"
     cout << "NOW!\n";
 
     int elapsed = 0;
     while (elapsed < 1500) {
         if (_kbhit()) {
-            char key = _getch();
-            if ((key == 'a' || key == 'A') && p1.energy > 0) {
+            char tecla = _getch();
+            tecla = tolower(tecla);
+
+            if (tecla == keyP1 && p1.energy > 0) {
                 p1.hardened = true;
                 p1.energy--;
             }
-            if ((key == 'l' || key == 'L') && p2.energy > 0) {
+            if (tecla == keyP2 && p2.energy > 0) {
                 p2.hardened = true;
                 p2.energy--;
             }
