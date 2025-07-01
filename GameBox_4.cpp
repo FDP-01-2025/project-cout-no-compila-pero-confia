@@ -1,6 +1,7 @@
 #include <iostream>
 #include "sources/Hit_Diglett.h"
 #include "sources/Rock_Harden.h"
+#include "sources/CleafirySays.h"
 
 using namespace std;
 
@@ -18,8 +19,11 @@ int main(){
     switch (num)
     {
     case 1:
+
+        ClefairyGame::playClefairySays();
+        return 0;
         //Clefairy Says Game Function
-        break;
+    
     case 2:
 
         iniciarJuego();

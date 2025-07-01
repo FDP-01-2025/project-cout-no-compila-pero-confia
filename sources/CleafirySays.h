@@ -5,94 +5,92 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <thread>
-#include <chrono>
-#include <conio.h>
+#include <cctype>
 
-#ifdef _WIN32
-         #include <windows.h>
-#else
-        #include <unistd.h>
-#endif
+namespace ClefairyGame {
 
-using namespace std;
+    using std::cout;
+    using std::cin;
+    using std::endl;
+    using std::vector;
 
-// Cross-platform screen clear
-void clearScreen() {
-    #ifdef _WIN32
-        system("cls");
-    #else
-        system("clear");
-    #endif
-}
-//Generation a random arrow key (W, A, S, D)
-char generateRandomKey() {
-    int r = rand() % 4;
-    switch (r) {
-        case 0: return 'W'; // Up
-        case 1: return 'A'; // Left
-        case 2: return 'S'; // Down
-        case 3: return 'D'; // Right
-        default: return 'W';
+    void clearScreen() {
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
     }
-}
 
-// Display the arrow visually
-void showArrow(char arrow){
-    switch (arrow){
-        case 'W': cout << "^" << endl; break;
-        case 'A': cout << "<" << endl; break;
-        case 'S': cout << "v" << endl; break;
-        case 'D': cout << ">" << endl; break;
+    char generateRandomKey() {
+        const char keys[] = {'W', 'A', 'S', 'D'};
+        return keys[rand() % 4];
     }
-}
 
-int main(){
-    srand(static_cast<unsigned int>(time(0)));
+    void showArrow(char arrow) {
+        switch (arrow) {
+            case 'W': cout << "↑ (W)" << endl; break;
+            case 'A': cout << "← (A)" << endl; break;
+            case 'S': cout << "↓ (S)" << endl; break;
+            case 'D': cout << "→ (D)" << endl; break;
+            default:  cout << "?" << endl; break;
+        }
+    }
 
-    vector<char> sequence;
-    vector<char> playerInput;
-    int level = 1;
-    bool playing = true;
-    int delay = 1000; // milliseconds between arrows
-    cout << "Welcome to 'Cleafiry Says'!" << endl;
-    cout << "Repeat the arrow sequence usign W (^), A (<), S(v), D(>)" <<  endl;
-    cout << "Press ENTER to start... " << endl;
-    cin.ignore();
+    void waitForEnter() {
+        cout << "\nPresiona ENTER para continuar...";
+        cin.ignore();
+    }
 
-    while (playing){
-        // Add a new arrow to the sequence
-        sequence.push_back(getRandomArrow());
+    void playClefairySays() {
+        srand(static_cast<unsigned int>(time(0)));
 
-        cout << "\nLevel " << level << "Watch the sequence... " << endl;
+        vector<char> sequence;
+        vector<char> playerInput;
+        int level = 1;
+        bool playing = true;
 
-        //Show the sequence
-        for (char arrow : sequence){
-            showArrow(arrow);
-            this_thread::sleep_for(chrono::milliseconds(delay));
+        cout << "🎮 Bienvenido a 'Clefairy Says'!\n";
+        cout << "Repite la secuencia usando W (^), A (<), S (v), D (>)\n";
+        cout << "Presiona ENTER para comenzar...\n";
+        cin.ignore();
+
+        while (playing) {
+            sequence.push_back(generateRandomKey());
+
+            for (char arrow : sequence) {
+                clearScreen();
+                cout << "\n🧠 Nivel " << level << ": Observa la flecha\n\n";
+                showArrow(arrow);
+                waitForEnter(); // ← ahora pausás manualmente entre flechas
+            }
+
             clearScreen();
+            playerInput.clear();
+            cout << "🔁 Repite la secuencia:\n";
+
+            for (size_t i = 0; i < sequence.size(); ++i) {
+                char input;
+                cout << "Flecha " << i + 1 << ": ";
+                cin >> input;
+                input = toupper(input);
+                playerInput.push_back(input);
+            }
+
+            if (playerInput != sequence) {
+                cout << "\n❌ ¡Incorrecto! Juego terminado en el nivel " << level << ".\n";
+                playing = false;
+            } else {
+                cout << "\n✅ ¡Correcto! Avanzando al nivel " << (++level) << "...\n";
+                cout << "Presiona ENTER para continuar...";
+                cin.ignore();
+                cin.get();
+            }
         }
 
-        // Get player's input
-        playerInput.clear();
-        cout << "Now repeat the sequence" << endl;
-
-        for (size_t i = 0; i < sequence.size(); ++i){
-            char Input;
-            cout << "Arrow " << (i + 1) << ": ";
-            cin >> Input;
-            Input = toupper(Input);
-            playerInput.push_back(Input);
-        }
-
-        
+        cout << "\n✨ Gracias por jugar 'Clefairy Says'. ¡Hasta la próxima!\n";
     }
 
+} // namespace ClefairyGame
 
-
-
-}
-    
-
-
-
+#endif // CLEAFIRYSAYS_H
