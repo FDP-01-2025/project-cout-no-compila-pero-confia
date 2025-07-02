@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cctype>
+#include <limits>
 
 namespace ClefairyGame {
 
@@ -53,7 +54,10 @@ namespace ClefairyGame {
         cout << "🎮 Bienvenido a 'Clefairy Says'!\n";
         cout << "Repite la secuencia usando W (^), A (<), S (v), D (>)\n";
         cout << "Presiona ENTER para comenzar...\n";
-        cin.ignore();
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cin.get();
+
+        clearScreen();
 
         while (playing) {
             sequence.push_back(generateRandomKey());
