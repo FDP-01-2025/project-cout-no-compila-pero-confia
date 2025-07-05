@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <chrono>
 #include <string>
+#include <vector>
 
 using namespace std;
 using namespace std::chrono;
@@ -40,6 +41,37 @@ inline void mostrarBarraEnergia(int energia) {
     }
     cout << "] (" << energia << "/5)";
     setColor(7);  // restaura color
+}
+
+// frases aleatorias para aciertos y errores
+inline void mensajeEspecial(bool acertado, const string& nombre) {
+    vector<string> aciertos = {
+        "Ninja reflexes! 🥷",
+        "Ultra instinct activated!",
+        "Like lightning! ⚡",
+       "That was fast," + nombre + "!",
+        "Perfect timing!"
+    };
+
+    vector<string> errores = {
+        "Like a Slowpoke! 🐢",
+        "Were you asleep?"
+        "Magikarp-level reaction.",
+        "Tardísimo, " + nombre + " 😅",
+        "¡Fuiste aplastado por la roca!"
+    };
+
+    string mensaje;
+    if (acertado) {
+        mensaje = aciertos[rand() % aciertos.size()];
+        setColor(10); // verde
+    } else {
+        mensaje = errores[rand() % errores.size()];
+        setColor(12); // rojo
+    }
+
+    cout << nombre << ": " << mensaje << "\n";
+    setColor(7);
 }
 
 // muestra vida y energía usando la barra visual
@@ -85,21 +117,30 @@ inline void playRound(Player& p1, Player& p2) {
             char tecla = tolower(_getch());
             if (tecla == keyP1 && p1.energy > 0) {
                 p1.hardened = true;
-                p1.energy--;            // resta energía aquí
+                p1.energy--;
             }
             if (tecla == keyP2 && p2.energy > 0) {
                 p2.hardened = true;
-                p2.energy--;            // y aquí
+                p2.energy--;
             }
         }
         Sleep(100);
         elapsed += 100;
     }
 
-    if (!p1.hardened) p1.health--;
-    if (!p2.hardened) p2.health--;
+    if (!p1.hardened) {
+        p1.health--;
+        mensajeEspecial(false, p1.name);
+    } else {
+        mensajeEspecial(true, p1.name);
+    }
 
-    // eliminamos la regeneración automática para que la barra muestre el cambio
+    if (!p2.hardened) {
+        p2.health--;
+        mensajeEspecial(false, p2.name);
+    } else {
+        mensajeEspecial(true, p2.name);
+    }
 }
 
 inline void runGame(int maxDurationSeconds = 60) {
@@ -119,7 +160,6 @@ inline void runGame(int maxDurationSeconds = 60) {
 
         showStatus(player1, player2);
 
-        // barra de tiempo al estilo original
         cout << "Time elapsed: " << elapsedS << "s / " << maxDurationSeconds << "s\n";
         cout << "[";
         int barWidth = 20;
