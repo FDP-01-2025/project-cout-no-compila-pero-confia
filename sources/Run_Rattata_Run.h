@@ -35,7 +35,48 @@ public:
         cout << "\nPress any key to start...\n";
         _getch();
     }
+    
+        void start() {
+        showInstructions();
 
+        while (position < 50) {
+            if (_kbhit()) {
+                char key = _getch();
+
+                // Left or right movement
+                if ((key == 75 || key == 'a' || key == 'A') && lastKey != 'L') {
+                    speed++;
+                    lastKey = 'L';
+                } else if ((key == 77 || key == 'd' || key == 'D') && lastKey != 'R') {
+                    speed++;
+                    lastKey = 'R';
+                } else if (key == 'a' || key == 'A') {
+                    if (position == obstacle) {
+                        cout << "You jumped over the obstacle!\n";
+                        jumps++;
+                        obstacle = position + rand() % 20 + 10;
+                    } else {
+                        cout << "You jumped too early or too late!\n";
+                        speed -= 2;
+                        if (speed < 0) speed = 0;
+                    }
+                }
+
+                if (speed >= 2) {
+                    position++;
+                    speed = 0;
+                    cout << "Rattata is now at " << position << "m\n";
+
+                    if (position == obstacle) {
+                        cout << "Obstacle ahead! Press 'A' to jump!\n";
+                    }
+                }
+            }
+        }
+
+        cout << "\n🏁 You reached the finish line!\n";
+        cout << "Total jumps: " << jumps << "\n";
+    }
     
 };
 
