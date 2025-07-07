@@ -59,8 +59,8 @@ public:
     }
 
     void showStatus() {
-        cout << "📍 Position: " << position << "m | ⚡ Speed: " << speed
-             << " | 🐭 Jumps: " << jumps << " | ❌ Misses: " << penalties << "\n";
+        cout << " Position: " << position << "m |  Speed: " << speed
+             << " |  Jumps: " << jumps << " |  Misses: " << penalties << "\n";
     }
 
     int calculateScore(int durationSeconds) {
@@ -85,14 +85,14 @@ public:
                 if (mustJumpNext) {
                     // Debe saltar con W sí o sí
                     if (key == 'w' || key == 'W') {
-                        cout << "✅ You jumped the obstacle!\n";
+                        cout << "You jumped the obstacle!\n";
                         jumps++;
                         mustJumpNext = false;
                         obstacle = position + rand() % 5 + 5;
                         speed = 0;
                         position++; // Avanza solo al saltar
                     } else {
-                        cout << "❌ You missed the jump! -2m penalty\n";
+                        cout << "You missed the jump! -2m penalty\n";
                         penalties++;
                         speed = 0;
                         position = max(0, position - 2); // Retrocede 2 metros
@@ -111,7 +111,7 @@ public:
                     lastKey = 'R';
                 } else if ((key == 'w' || key == 'W')) {
                     // W fuera de tiempo
-                    cout << "❌ Wrong timing for jump!\n";
+                    cout << "Wrong timing for jump!\n";
                     penalties++;
                     speed = max(0, speed - 2);
                 }
@@ -120,10 +120,10 @@ public:
                     position++;
                     speed = 0;
 
-                    cout << "\n🏃 Rattata is now at " << position << "m\n";
+                    cout << "\nRattata is now at " << position << "m\n";
 
                     if (position == obstacle - 1) {
-                        cout << "⚠️ Obstacle ahead! NEXT key must be 'W' to jump!\n";
+                        cout << "Obstacle ahead! NEXT key must be 'W' to jump!\n";
                         mustJumpNext = true;
                     }
                 }
