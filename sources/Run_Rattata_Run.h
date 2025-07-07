@@ -41,7 +41,6 @@ public:
         cout << "- Alternate 'A' and 'D' to move.\n";
         cout << "- Press 'W' to jump ONLY when an obstacle appears.\n";
         cout << "- Reach 50m to win. Each miss costs 2m!\n";
-        cout << "\nBest Score: " << bestScore << " points";
         if (bestTime < 9999)
             cout << " | Best Time: " << bestTime << "s";
         cout << "\n\nPress any key to start...\n";
@@ -140,11 +139,7 @@ public:
         cout << "Time: " << seconds << " seconds\n";
         cout << "Final Score: " << finalScore << "\n";
 
-        if (finalScore > bestScore) {
-            bestScore = finalScore;
-            bestTime = seconds;
-            cout << "New Record!\n";
-        }
+        
     }
 };
 

@@ -25,13 +25,12 @@ int main(){
     case 1:
 
         ClefairyGame::playClefairySays();
-        return 0;
+        break;
         //Clefairy Says Game Function
     
     case 2:
 
         iniciarJuego();
-        return 0;
 
         //Diglett Heist Game Function
         break;
@@ -40,12 +39,11 @@ int main(){
       {//Function of the Run Rattata Run game
         RattataGame game;
         game.start();
-        return 0;
+        break;
       }
     case 4:
 
         RockHarden::runGame(15);
-        return 0;
 
         //Rock Harden Game Feature
         break;
@@ -60,6 +58,7 @@ int main(){
     }
 
 }while(num != 5);
+
 return 0;
 }
 
