@@ -22,59 +22,59 @@ struct Player {
     bool hardened = false;
 };
 
-// cambia el color del texto en consola (Windows)
+// changes console text color (Windows)
 inline void setColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
 
-// dibuja una barra de energía de 5 bloques con color
-inline void mostrarBarraEnergia(int energia) {
-    int color = (energia >= 4) ? 10    // verde
-             : (energia >= 2) ? 14    // amarillo
-             : 12;                    // rojo
+// draws an energy bar of 5 blocks with color
+inline void showEnergyBar(int energy) {
+    int color = (energy >= 4) ? 10    // green
+             : (energy >= 2) ? 14    // yellow
+             : 12;                   // red
 
     setColor(color);
     cout << "[";
     for (int i = 0; i < 5; ++i) {
-        if (i < energia) cout << "#";
-        else             cout << " ";
+        if (i < energy) cout << "#";
+        else            cout << " ";
     }
-    cout << "] (" << energia << "/5)";
-    setColor(7);  // restaura color
+    cout << "] (" << energy << "/5)";
+    setColor(7);  // reset color
 }
 
-// frases aleatorias para aciertos y errores
-inline void mensajeEspecial(bool acertado, const string& nombre) {
-    vector<string> aciertos = {
+// random messages for success and failure
+inline void specialMessage(bool success, const string& name) {
+    vector<string> successMessages = {
         "Ninja reflexes! 🥷",
         "Ultra instinct activated!",
         "Like lightning! ⚡",
-       "That was fast," + nombre + "!",
+        "That was fast, " + name + "!",
         "Perfect timing!"
     };
 
-    vector<string> errores = {
+    vector<string> failMessages = {
         "Like a Slowpoke! 🐢",
-        "Were you asleep?"
+        "Were you asleep?",
         "Magikarp-level reaction.",
-        "Tardísimo, " + nombre + " 😅",
-        "¡Fuiste aplastado por la roca!"
+        "Way too late, " + name + " 😅",
+        "You were crushed by the rock!"
     };
 
-    string mensaje;
-    if (acertado) {
-        mensaje = aciertos[rand() % aciertos.size()];
-        setColor(10); // verde
+    string message;
+    if (success) {
+        message = successMessages[rand() % successMessages.size()];
+        setColor(10); // green
     } else {
-        mensaje = errores[rand() % errores.size()];
-        setColor(12); // rojo
+        message = failMessages[rand() % failMessages.size()];
+        setColor(12); // red
     }
 
-    cout << nombre << ": " << mensaje << "\n";
+    cout << name << ": " << message << "\n";
     setColor(7);
 }
 
-// muestra vida y energía usando la barra visual
+// displays health and energy using the visual bar
 inline void showStatus(const Player& p1, const Player& p2) {
     system("cls");
     cout << "========== ROCK HARDEN ==========\n\n";
@@ -82,17 +82,17 @@ inline void showStatus(const Player& p1, const Player& p2) {
     cout << p1.name
          << " - Health: " << p1.health
          << " | Energy: ";
-    mostrarBarraEnergia(p1.energy);
+    showEnergyBar(p1.energy);
     cout << "\n";
 
     cout << p2.name
          << " - Health: " << p2.health
          << " | Energy: ";
-    mostrarBarraEnergia(p2.energy);
+    showEnergyBar(p2.energy);
     cout << "\n\n";
 }
 
-// tecla aleatoria para cada jugador
+// random key for each player
 inline char getRandomKey() {
     const string valid = "asdfghjklzxcvbnmqwertyuiop";
     return valid[rand() % valid.size()];
@@ -114,12 +114,12 @@ inline void playRound(Player& p1, Player& p2) {
     int elapsed = 0;
     while (elapsed < 1500) {
         if (_kbhit()) {
-            char tecla = tolower(_getch());
-            if (tecla == keyP1 && p1.energy > 0) {
+            char key = tolower(_getch());
+            if (key == keyP1 && p1.energy > 0) {
                 p1.hardened = true;
                 p1.energy--;
             }
-            if (tecla == keyP2 && p2.energy > 0) {
+            if (key == keyP2 && p2.energy > 0) {
                 p2.hardened = true;
                 p2.energy--;
             }
@@ -130,16 +130,16 @@ inline void playRound(Player& p1, Player& p2) {
 
     if (!p1.hardened) {
         p1.health--;
-        mensajeEspecial(false, p1.name);
+        specialMessage(false, p1.name);
     } else {
-        mensajeEspecial(true, p1.name);
+        specialMessage(true, p1.name);
     }
 
     if (!p2.hardened) {
         p2.health--;
-        mensajeEspecial(false, p2.name);
+        specialMessage(false, p2.name);
     } else {
-        mensajeEspecial(true, p2.name);
+        specialMessage(true, p2.name);
     }
 }
 

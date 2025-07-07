@@ -72,31 +72,34 @@ namespace ClefairyGame {
         }
     }
 
-    void showHighScores() {
-        try {
-            std::ifstream inFile("scores.txt");
-            string line;
+   void showHighScores() {
+    std::ifstream inFile("scores.txt");
+    string line;
 
-            cout << "\n📜 High Scores:\n";
-            cout << "----------------------\n";
-            if (!inFile) {
-                throw std::runtime_error("scores.txt could not be opened.");
-            }
+    cout << "\n High Scores:\n";
+    cout << "----------------------\n";
 
-            while (getline(inFile, line)) {
-                std::istringstream iss(line);
-                string name, score;
-                if (getline(iss, name, ',') && getline(iss, score)) {
-                    cout << name << " - " << score << endl;
-                }
-            }
+    // If the file doesn't exist, create it and inform the user
+    if (!inFile) {
+        std::ofstream createFile("scores.txt"); // This creates the file
+        createFile.close();
+        cout << "(No scores yet!)\n";
+        cout << "----------------------\n\n";
+        return;
+    }
 
-            inFile.close();
-            cout << "----------------------\n\n";
-        } catch (const std::exception& e) {
-            std::cerr << "⚠️ Error reading scores: " << e.what() << endl;
+    while (getline(inFile, line)) {
+        std::istringstream iss(line);
+        string name, score;
+        if (getline(iss, name, ',') && getline(iss, score)) {
+            cout << name << " - " << score << endl;
         }
     }
+
+    inFile.close();
+    cout << "----------------------\n\n";
+}
+
 
     void playClefairySays() {
         srand(static_cast<unsigned int>(time(0)));
@@ -107,7 +110,7 @@ namespace ClefairyGame {
         int level = 1;
         bool playing = true;
 
-        cout << "🎮 Welcome to 'Clefairy Says'!\n";
+        cout << " Welcome to 'Clefairy Says'!\n";
         showHighScores();
 
         cout << "Enter your name: ";
@@ -115,8 +118,9 @@ namespace ClefairyGame {
 
         cout << "Repeat the sequence using W (^), A (<), S (v), D (>)\n";
         cout << "Press ENTER to start...\n";
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cin.ignore();
         cin.get();
+
 
         clearScreen();
 
@@ -125,7 +129,7 @@ namespace ClefairyGame {
 
             for (char arrow : sequence) {
                 clearScreen();
-                cout << "\n🧠 Level " << level << ": Watch the arrow\n\n";
+                cout << "\n Level " << level << ": Watch the arrow\n\n";
                 showArrow(arrow);
                 waitForEnter();
             }
@@ -153,11 +157,11 @@ namespace ClefairyGame {
             }
 
             if (playerInput != sequence) {
-                cout << "\n❌ Incorrect! Game over at level " << level << ".\n";
+                cout << "\n Incorrect! Game over at level " << level << ".\n";
                 playing = false;
                 player.score = level - 1;
             } else {
-                cout << "\n✅ Correct! Advancing to level " << (++level) << "...\n";
+                cout << "\n Correct! Advancing to level " << (++level) << "...\n";
                 cout << "Press ENTER to continue...";
                 cin.ignore();
                 cin.get();
@@ -165,7 +169,7 @@ namespace ClefairyGame {
         }
 
         cout << "\n✨ Thanks for playing, " << player.name << "!\n";
-        cout << "🎯 Your final score: " << player.score << endl;
+        cout << " Your final score: " << player.score << endl;
 
         saveScore(player);
     }

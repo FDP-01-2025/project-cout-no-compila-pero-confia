@@ -1,6 +1,6 @@
 // Hit_Diglett.h
-#ifndef GOLPEAADIGLETT_H
-#define GOLPEAADIGLETT_H
+#ifndef HIT_DIGLETT_H
+#define HIT_DIGLETT_H
 
 #include <iostream>
 #include <cstdlib>
@@ -10,14 +10,14 @@
 
 using namespace std;
 
-void mostrarGrid(int posicion) {
+void showGrid(int position) {
     system("cls");
     cout << "Hit Diglett (press the correct number)!\n\n";
 
     int layout[9] = {7, 8, 9, 4, 5, 6, 1, 2, 3}; // Numeric keypad layout
 
     for (int i = 0; i < 9; ++i) {
-        if (layout[i] == posicion) {
+        if (layout[i] == position) {
             cout << "[D] ";
         } else {
             cout << "[" << layout[i] << "] ";
@@ -26,58 +26,58 @@ void mostrarGrid(int posicion) {
     }
 }
 
-int obtenerPosicionAleatoria() {
+int getRandomPosition() {
     return rand() % 9 + 1;
 }
 
-void penalizarTiempo(int& tiempoInicio, int penalizacion) {
-    tiempoInicio += penalizacion;
+void applyTimePenalty(int& startTime, int penalty) {
+    startTime += penalty;
 }
 
-void actualizarVelocidad(int aciertos, int& velocidad) {
-    if (aciertos % 4 == 0 && velocidad > 400) {
-        velocidad -= 150;
+void updateSpeed(int hits, int& speed) {
+    if (hits % 4 == 0 && speed > 400) {
+        speed -= 150;
     }
 }
 
-void iniciarJuego() {
+void startGame() {
     srand(time(NULL));
-    int puntuacion = 0;
-    int aciertos = 0;
-    int penalizacion = 3;             // seconds subtracted upon failure
-    int duracion = 60;                // total game duration
-    int tiempoInicio = time(0);
-    int velocidad = 1500;             // longer than a visible Diglett lasts
+    int score = 0;
+    int hits = 0;
+    int penalty = 3;            // seconds subtracted upon failure
+    int duration = 60;          // total game duration
+    int startTime = time(0);
+    int speed = 1500;           // Diglett visible time in ms
 
-    while (time(0) - tiempoInicio < duracion) {
-        int diglett = obtenerPosicionAleatoria();
-        mostrarGrid(diglett);
-        int tiempoAparicion = time(0);
-        bool acertado = false;
+    while (time(0) - startTime < duration) {
+        int diglett = getRandomPosition();
+        showGrid(diglett);
+        int appearanceTime = time(0);
+        bool successfulHit = false;
 
-        while (time(0) - tiempoAparicion < velocidad / 1000.0) {
+        while (time(0) - appearanceTime < speed / 1000.0) {
             if (_kbhit()) {
-                char tecla = _getch();
-                if (tecla == diglett + '0') {
-                    puntuacion++;
-                    aciertos++;
-                    actualizarVelocidad(aciertos, velocidad);
-                    acertado = true;
+                char key = _getch();
+                if (key == diglett + '0') {
+                    score++;
+                    hits++;
+                    updateSpeed(hits, speed);
+                    successfulHit = true;
                     break;
                 } else {
-                    penalizarTiempo(tiempoInicio, penalizacion);
+                    applyTimePenalty(startTime, penalty);
                     break;
                 }
             }
         }
 
-        if (!acertado) {
-            penalizarTiempo(tiempoInicio, penalizacion);
+        if (!successfulHit) {
+            applyTimePenalty(startTime, penalty);
         }
     }
 
     system("cls");
-    cout << "¡Time's up! Your final score: " << puntuacion << endl;
+    cout << "Time's up! Your final score: " << score << endl;
 }
 
 #endif
