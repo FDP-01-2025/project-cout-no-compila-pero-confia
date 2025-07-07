@@ -22,7 +22,7 @@ public:
         srand(time(0));
         position = 0;
         speed = 0;
-        obstacle = rand() % 5 + 3;  // Primer obstáculo muy cercano
+        obstacle = rand() % 5 + 3;
         lastKey = ' ';
         jumps = 0;
         waitingForJump = false;
@@ -37,38 +37,34 @@ public:
         cout << "\nPress any key to start...\n";
         _getch();
     }
-    
+
     void start() {
         showInstructions();
+
+        clock_t startTime = clock();  
 
         while (position < 50) {
             if (_kbhit()) {
                 int key = _getch();
 
-                // Leer tecla especial (flechas)
-                if (key == 0 || key == 224) {
+                if (key == 0 || key == 224)
                     key = _getch();
-                }
-
-                cout << "🔹 Key pressed: " << key << endl;
 
                 if (waitingForJump) {
                     if (key == 'w' || key == 'W') {
-                        cout << "You jumped over the obstacle!\n";
+                        cout << "✔️ You jumped over the obstacle!\n";
                         jumps++;
                         waitingForJump = false;
-                        // Nuevo obstáculo entre 3 y 7 metros adelante para más saltos frecuentes
-                        obstacle = position + rand() % 5 + 3;
-                        speed = 0; // reset velocidad
+                        obstacle = position + rand() % 5 + 3;  
+                        speed = 0;
                     } else {
-                        cout << "You failed to jump! You fall back 2 meters.\n";
+                        cout << "❌ Failed jump! -2m\n";
                         position -= 2;
                         if (position < 0) position = 0;
-                        cout << "Still at obstacle at position " << position << ". Press 'W' to jump!\n";
+                        cout << "You're still at " << position << "m. Press 'W' to jump!\n";
                     }
-                    continue; // esperar salto antes de seguir
+                    continue;
                 } else {
-                    // Corre alternando A y D
                     if ((key == 'a' || key == 'A') && lastKey != 'L') {
                         speed++;
                         lastKey = 'L';
@@ -78,7 +74,7 @@ public:
                         lastKey = 'R';
                     }
                     else if (key == 'w' || key == 'W') {
-                        cout << "You jumped at the wrong time!\n";
+                        cout << "⚠️ Jumped at wrong time! -2 speed\n";
                         speed -= 2;
                         if (speed < 0) speed = 0;
                     }
@@ -87,18 +83,22 @@ public:
                 if (speed >= 2) {
                     position++;
                     speed = 0;
-                    cout << "Rattata is now at " << position << "m\n";
+                    cout << "🐭 Rattata is now at " << position << "m\n";
 
                     if (position == obstacle) {
-                        cout << "Obstacle ahead! Press 'W' to jump!\n";
+                        cout << "🪨 Obstacle ahead! Press 'W' to jump!\n";
                         waitingForJump = true;
                     }
                 }
             }
         }
 
+        clock_t endTime = clock();  
+        double totalTime = double(endTime - startTime) / CLOCKS_PER_SEC;
+
         cout << "\n🏁 You reached the finish line!\n";
-        cout << "Total jumps: " << jumps << "\n";
+        cout << "🕒 Time taken: " << totalTime << " seconds\n";
+        cout << "🦘 Total jumps: " << jumps << "\n";
     }
 };
 
