@@ -2,9 +2,10 @@
 #define RATTATAGAME_H
 
 #include <iostream>
-#include <conio.h>  
+#include <conio.h>
 #include <ctime>
 #include <cstdlib>
+#include <windows.h>
 
 using namespace std;
 
@@ -15,91 +16,137 @@ private:
     int obstacle;
     char lastKey;
     int jumps;
-    bool waitingForJump;
+    int penalties;
+    int bestScore;
+    int bestTime;
+
+    // Timer
+    clock_t startTime;
+    clock_t endTime;
+
+    bool mustJumpNext; // Indica que la próxima tecla DEBE ser salto (W)
 
 public:
     RattataGame() {
         srand(time(0));
-        position = 0;
-        speed = 0;
-        obstacle = rand() % 5 + 3;
-        lastKey = ' ';
-        jumps = 0;
-        waitingForJump = false;
+        resetGame();
+        bestScore = 0;
+        bestTime = 9999; // Tiempo alto inicial
     }
 
     void showInstructions() {
+        system("cls");
         cout << "=== Run, Rattata, Run! ===\n";
         cout << "Instructions:\n";
-        cout << "- Alternate 'A' and 'D' quickly to run.\n";
-        cout << "- Press 'W' to jump when an obstacle appears.\n";
-        cout << "- Reach the finish line at 50m to win!\n";
-        cout << "\nPress any key to start...\n";
+        cout << "- Alternate 'A' and 'D' to move.\n";
+        cout << "- Press 'W' to jump ONLY when an obstacle appears.\n";
+        cout << "- Reach 50m to win. Each miss costs 2m!\n";
+        cout << "\nBest Score: " << bestScore << " points";
+        if (bestTime < 9999)
+            cout << " | Best Time: " << bestTime << "s";
+        cout << "\n\nPress any key to start...\n";
         _getch();
     }
 
-    void start() {
-        showInstructions();
+    void resetGame() {
+        position = 0;
+        speed = 0;
+        obstacle = rand() % 5 + 10;
+        lastKey = ' ';
+        jumps = 0;
+        penalties = 0;
+        mustJumpNext = false;
+    }
 
-        clock_t startTime = clock();  
+    void showStatus() {
+        cout << "📍 Position: " << position << "m | ⚡ Speed: " << speed
+             << " | 🐭 Jumps: " << jumps << " | ❌ Misses: " << penalties << "\n";
+    }
+
+    int calculateScore(int durationSeconds) {
+        int score = 100;
+        score += (50 - durationSeconds) * 2;
+        score += jumps * 3;
+        score -= penalties * 5;
+        if (score < 0) score = 0;
+        return score;
+    }
+
+    void start() {
+        resetGame();
+        showInstructions();
+        startTime = clock();
 
         while (position < 50) {
             if (_kbhit()) {
                 int key = _getch();
+                if (key == 0 || key == 224) key = _getch(); // Teclas especiales
 
-                if (key == 0 || key == 224)
-                    key = _getch();
-
-                if (waitingForJump) {
+                if (mustJumpNext) {
+                    // Debe saltar con W sí o sí
                     if (key == 'w' || key == 'W') {
-                        cout << "✔️ You jumped over the obstacle!\n";
+                        cout << "✅ You jumped the obstacle!\n";
                         jumps++;
-                        waitingForJump = false;
-                        obstacle = position + rand() % 5 + 3;  
+                        mustJumpNext = false;
+                        obstacle = position + rand() % 5 + 5;
                         speed = 0;
+                        position++; // Avanza solo al saltar
                     } else {
-                        cout << "❌ Failed jump! -2m\n";
-                        position -= 2;
-                        if (position < 0) position = 0;
-                        cout << "You're still at " << position << "m. Press 'W' to jump!\n";
+                        cout << "❌ You missed the jump! -2m penalty\n";
+                        penalties++;
+                        speed = 0;
+                        position = max(0, position - 2); // Retrocede 2 metros
+                        // mustJumpNext sigue true, sigue sin poder avanzar
                     }
-                    continue;
-                } else {
-                    if ((key == 'a' || key == 'A') && lastKey != 'L') {
-                        speed++;
-                        lastKey = 'L';
-                    }
-                    else if ((key == 'd' || key == 'D') && lastKey != 'R') {
-                        speed++;
-                        lastKey = 'R';
-                    }
-                    else if (key == 'w' || key == 'W') {
-                        cout << "⚠️ Jumped at wrong time! -2 speed\n";
-                        speed -= 2;
-                        if (speed < 0) speed = 0;
-                    }
+                    showStatus();
+                    continue; // Esperar siguiente tecla sin procesar más
+                }
+
+                // Si no debe saltar, movimiento normal A/D
+                if ((key == 'a' || key == 'A') && lastKey != 'L') {
+                    speed++;
+                    lastKey = 'L';
+                } else if ((key == 'd' || key == 'D') && lastKey != 'R') {
+                    speed++;
+                    lastKey = 'R';
+                } else if ((key == 'w' || key == 'W')) {
+                    // W fuera de tiempo
+                    cout << "❌ Wrong timing for jump!\n";
+                    penalties++;
+                    speed = max(0, speed - 2);
                 }
 
                 if (speed >= 2) {
                     position++;
                     speed = 0;
-                    cout << "🐭 Rattata is now at " << position << "m\n";
 
-                    if (position == obstacle) {
-                        cout << "🪨 Obstacle ahead! Press 'W' to jump!\n";
-                        waitingForJump = true;
+                    cout << "\n🏃 Rattata is now at " << position << "m\n";
+
+                    if (position == obstacle - 1) {
+                        cout << "⚠️ Obstacle ahead! NEXT key must be 'W' to jump!\n";
+                        mustJumpNext = true;
                     }
                 }
+
+                showStatus();
             }
         }
 
-        clock_t endTime = clock();  
-        double totalTime = double(endTime - startTime) / CLOCKS_PER_SEC;
+        endTime = clock();
+        int seconds = (endTime - startTime) / CLOCKS_PER_SEC;
+        int finalScore = calculateScore(seconds);
 
-        cout << "\n🏁 You reached the finish line!\n";
-        cout << "🕒 Time taken: " << totalTime << " seconds\n";
-        cout << "🦘 Total jumps: " << jumps << "\n";
+        cout << "\nYou reached the finish line!\n";
+        cout << "Time: " << seconds << " seconds\n";
+        cout << "Final Score: " << finalScore << "\n";
+
+        if (finalScore > bestScore) {
+            bestScore = finalScore;
+            bestTime = seconds;
+            cout << "New Record!\n";
+        }
     }
 };
 
 #endif
+
