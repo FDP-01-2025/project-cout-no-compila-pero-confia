@@ -71,66 +71,35 @@ namespace ClefairyGame {
         }
     }
 
-    void showHighScores() {
-        try {
-            std::ifstream inFile("scores.txt");
-            string line;
+   void showHighScores() {
+    std::ifstream inFile("scores.txt");
+    string line;
 
-            cout << "\n📜 High Scores:\n";
-            cout << "----------------------\n";
-            if (!inFile) {
-                throw std::runtime_error("scores.txt could not be opened.");
-            }
+    cout << "\n High Scores:\n";
+    cout << "----------------------\n";
 
-            while (getline(inFile, line)) {
-                std::istringstream iss(line);
-                string name, score;
-                if (getline(iss, name, ',') && getline(iss, score)) {
-                    cout << name << " - " << score << endl;
-                }
-            }
+    // If the file doesn't exist, create it and inform the user
+    if (!inFile) {
+        std::ofstream createFile("scores.txt"); // This creates the file
+        createFile.close();
+        cout << "(No scores yet!)\n";
+        cout << "----------------------\n\n";
+        return;
+    }
+
+    while (getline(inFile, line)) {
+        std::istringstream iss(line);
+        string name, score;
+        if (getline(iss, name, ',') && getline(iss, score)) {
+            cout << name << " - " << score << endl;
+        }
+    }
 
             inFile.close();
             cout << "----------------------\n\n";
         } catch (const std::exception& e) {
             std::cerr << "⚠️ Error reading scores: " << e.what() << endl;
         }
-    }
-
-    // Displays the sequence of arrows to the player
-    void showSequence(const vector<char>& sequence, int level) {
-        for (char arrow : sequence) {
-            clearScreen();
-            cout << "\n🧠 Level " << level << ": Watch the arrow\n\n";
-            showArrow(arrow);
-            waitForEnter();
-        }
-    }
-
-    // Gets validated input sequence from the player
-    vector<char> getPlayerInput(size_t length) {
-        vector<char> inputSequence;
-        for (size_t i = 0; i < length; ++i) {
-            char input;
-            bool valid = false;
-            do {
-                cout << "Arrow " << i + 1 << ": ";
-                cin >> input;
-                input = toupper(input);
-                if (isValidKey(input)) {
-                    inputSequence.push_back(input);
-                    valid = true;
-                } else {
-                    cout << "⚠️ Invalid input! Please enter W, A, S, or D.\n";
-                }
-            } while (!valid);
-        }
-        return inputSequence;
-    }
-
-    // Compares the player's input with the original sequence
-    bool compareSequences(const vector<char>& seq1, const vector<char>& seq2) {
-        return seq1 == seq2;
     }
 
     void playClefairySays() {
@@ -141,7 +110,7 @@ namespace ClefairyGame {
         int level = 1;
         bool playing = true;
 
-        cout << "🎮 Welcome to 'Clefairy Says'!\n";
+        cout << " Welcome to 'Clefairy Says'!\n";
         showHighScores();
 
         cout << "Enter your name: ";
@@ -149,25 +118,49 @@ namespace ClefairyGame {
 
         cout << "Repeat the sequence using W (^), A (<), S (v), D (>)\n";
         cout << "Press ENTER to start...\n";
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cin.ignore();
         cin.get();
+
 
         clearScreen();
 
         while (playing) {
             sequence.push_back(generateRandomKey());
 
-            showSequence(sequence, level);
+            for (char arrow : sequence) {
+                clearScreen();
+                cout << "\n🧠 Level " << level << ": Watch the arrow\n\n";
+                showArrow(arrow);
+                waitForEnter();
+            }
+
             clearScreen();
             cout << "🔁 Repeat the sequence:\n";
-            vector<char> playerInput = getPlayerInput(sequence.size());
 
-            if (!compareSequences(playerInput, sequence)) {
+            for (size_t i = 0; i < sequence.size(); ++i) {
+                char input;
+                bool valid = false;
+
+                // Keep asking until valid input is given
+                do {
+                    cout << "Arrow " << i + 1 << ": ";
+                    cin >> input;
+                    input = toupper(input);
+                    if (isValidKey(input)) {
+                        valid = true;
+                        playerInput.push_back(input);
+                    } else {
+                        cout << "⚠️ Invalid input! Please enter W, A, S, or D.\n";
+                    }
+                } while (!valid);
+            }
+
+            if (playerInput != sequence) {
                 cout << "\n❌ Incorrect! Game over at level " << level << ".\n";
                 playing = false;
                 player.score = level - 1;
             } else {
-                cout << "\n✅ Correct! Advancing to level " << (++level) << "...\n";
+                cout << "\n Correct! Advancing to level " << (++level) << "...\n";
                 cout << "Press ENTER to continue...";
                 cin.ignore();
                 cin.get();
@@ -175,7 +168,7 @@ namespace ClefairyGame {
         }
 
         cout << "\n✨ Thanks for playing, " << player.name << "!\n";
-        cout << "🎯 Your final score: " << player.score << endl;
+        cout << " Your final score: " << player.score << endl;
 
         saveScore(player);
     }

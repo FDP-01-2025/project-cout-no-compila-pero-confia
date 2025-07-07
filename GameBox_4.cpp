@@ -30,7 +30,7 @@ int main(){
     
     case 2:
 
-        iniciarJuego();
+        startGame();
 
         //Diglett Heist Game Function
         break;
