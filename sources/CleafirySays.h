@@ -7,6 +7,7 @@
 #include <ctime>
 #include <cctype>
 #include <limits>
+#include <string>
 
 namespace ClefairyGame {
 
@@ -14,7 +15,15 @@ namespace ClefairyGame {
     using std::cin;
     using std::endl;
     using std::vector;
+    using std::string;
 
+    // Structure to hold player information
+    struct Player {
+        string name;
+        int score;
+    };
+
+    // Clears the console screen depending on the OS
     void clearScreen() {
         #ifdef _WIN32
             system("cls");
@@ -23,11 +32,13 @@ namespace ClefairyGame {
         #endif
     }
 
+    // Generates a random direction key (W, A, S, D)
     char generateRandomKey() {
         const char keys[] = {'W', 'A', 'S', 'D'};
         return keys[rand() % 4];
     }
 
+    // Displays the corresponding arrow symbol for the direction
     void showArrow(char arrow) {
         switch (arrow) {
             case 'W': cout << "↑ (W)" << endl; break;
@@ -38,61 +49,74 @@ namespace ClefairyGame {
         }
     }
 
+    // Pauses execution until the user presses ENTER
     void waitForEnter() {
-        cout << "\nPresiona ENTER para continuar...";
+        cout << "\nPress ENTER to continue...";
         cin.ignore();
     }
 
+    // Main game logic for Clefairy Says
     void playClefairySays() {
-        srand(static_cast<unsigned int>(time(0)));
+        srand(static_cast<unsigned int>(time(0))); // Initialize RNG
 
-        vector<char> sequence;
-        vector<char> playerInput;
+        Player player;
+        vector<char> sequence;      // Stores the game's sequence
+        vector<char> playerInput;   // Stores user input
         int level = 1;
         bool playing = true;
 
-        cout << "🎮 Bienvenido a 'Clefairy Says'!\n";
-        cout << "Repite la secuencia usando W (^), A (<), S (v), D (>)\n";
-        cout << "Presiona ENTER para comenzar...\n";
+        // Ask for player's name
+        cout << "🎮 Welcome to 'Clefairy Says'!\n";
+        cout << "Enter your name: ";
+        getline(cin, player.name);
+
+        cout << "Repeat the sequence using W (^), A (<), S (v), D (>)\n";
+        cout << "Press ENTER to start...\n";
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         cin.get();
 
         clearScreen();
 
         while (playing) {
+            // Add a new arrow to the sequence
             sequence.push_back(generateRandomKey());
 
+            // Show the sequence to the player
             for (char arrow : sequence) {
                 clearScreen();
-                cout << "\n🧠 Nivel " << level << ": Observa la flecha\n\n";
+                cout << "\n🧠 Level " << level << ": Watch the arrow\n\n";
                 showArrow(arrow);
-                waitForEnter(); // ← ahora pausás manualmente entre flechas
+                waitForEnter(); // Pause between arrows
             }
 
             clearScreen();
             playerInput.clear();
-            cout << "🔁 Repite la secuencia:\n";
+            cout << "🔁 Repeat the sequence:\n";
 
+            // Get input from the player
             for (size_t i = 0; i < sequence.size(); ++i) {
                 char input;
-                cout << "Flecha " << i + 1 << ": ";
+                cout << "Arrow " << i + 1 << ": ";
                 cin >> input;
-                input = toupper(input);
+                input = toupper(input); // Normalize input to uppercase
                 playerInput.push_back(input);
             }
 
+            // Check if input matches the sequence
             if (playerInput != sequence) {
-                cout << "\n❌ ¡Incorrecto! Juego terminado en el nivel " << level << ".\n";
+                cout << "\n❌ Incorrect! Game over at level " << level << ".\n";
                 playing = false;
+                player.score = level - 1; // Score is the last correct level
             } else {
-                cout << "\n✅ ¡Correcto! Avanzando al nivel " << (++level) << "...\n";
-                cout << "Presiona ENTER para continuar...";
+                cout << "\n✅ Correct! Advancing to level " << (++level) << "...\n";
+                cout << "Press ENTER to continue...";
                 cin.ignore();
                 cin.get();
             }
         }
 
-        cout << "\n✨ Gracias por jugar 'Clefairy Says'. ¡Hasta la próxima!\n";
+        cout << "\n✨ Thanks for playing, " << player.name << "!\n";
+        cout << "🎯 Your final score: " << player.score << endl;
     }
 
 } // namespace ClefairyGame
