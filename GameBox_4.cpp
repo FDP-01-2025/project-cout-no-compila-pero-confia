@@ -2,6 +2,7 @@
 #include "sources/Hit_Diglett.h"
 #include "sources/Rock_Harden.h"
 #include "sources/CleafirySays.h"
+#include "sources/Run_Rattata_Run.h"
 
 using namespace std;
 
@@ -33,10 +34,11 @@ int main(){
         break;
 
     case 3:
-        
-        //Function of the Run Rattata Run game
-        break;
-
+      {//Function of the Run Rattata Run game
+        RattataGame game;
+        game.start();
+        return 0;
+      }
     case 4:
 
         RockHarden::runGame(15);
