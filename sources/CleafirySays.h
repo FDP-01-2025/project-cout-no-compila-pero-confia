@@ -8,6 +8,8 @@
 #include <cctype>
 #include <limits>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 namespace ClefairyGame {
 
@@ -55,18 +57,53 @@ namespace ClefairyGame {
         cin.ignore();
     }
 
+    // Saves the player's name and score to a file
+    void saveScore(const Player& player) {
+        std::ofstream outFile("scores.txt", std::ios::app);
+        if (outFile.is_open()) {
+            outFile << player.name << "," << player.score << "\n";
+            outFile.close();
+        } else {
+            std::cerr << "⚠️ Could not open scores file for writing.\n";
+        }
+    }
+
+    // Displays all previously saved scores
+    void showHighScores() {
+        std::ifstream inFile("scores.txt");
+        string line;
+        cout << "\n📜 High Scores:\n";
+        cout << "----------------------\n";
+        if (inFile.is_open()) {
+            while (getline(inFile, line)) {
+                std::istringstream iss(line);
+                string name;
+                string score;
+                if (getline(iss, name, ',') && getline(iss, score)) {
+                    cout << name << " - " << score << endl;
+                }
+            }
+            inFile.close();
+        } else {
+            cout << "No high scores available yet.\n";
+        }
+        cout << "----------------------\n\n";
+    }
+
     // Main game logic for Clefairy Says
     void playClefairySays() {
         srand(static_cast<unsigned int>(time(0))); // Initialize RNG
 
         Player player;
-        vector<char> sequence;      // Stores the game's sequence
-        vector<char> playerInput;   // Stores user input
+        vector<char> sequence;
+        vector<char> playerInput;
         int level = 1;
         bool playing = true;
 
-        // Ask for player's name
         cout << "🎮 Welcome to 'Clefairy Says'!\n";
+        showHighScores(); // Show previous scores
+
+        // Ask for player's name
         cout << "Enter your name: ";
         getline(cin, player.name);
 
@@ -106,7 +143,7 @@ namespace ClefairyGame {
             if (playerInput != sequence) {
                 cout << "\n❌ Incorrect! Game over at level " << level << ".\n";
                 playing = false;
-                player.score = level - 1; // Score is the last correct level
+                player.score = level - 1;
             } else {
                 cout << "\n✅ Correct! Advancing to level " << (++level) << "...\n";
                 cout << "Press ENTER to continue...";
@@ -115,8 +152,11 @@ namespace ClefairyGame {
             }
         }
 
+        // Show final result and save score
         cout << "\n✨ Thanks for playing, " << player.name << "!\n";
         cout << "🎯 Your final score: " << player.score << endl;
+
+        saveScore(player); // Save current player's score
     }
 
 } // namespace ClefairyGame
