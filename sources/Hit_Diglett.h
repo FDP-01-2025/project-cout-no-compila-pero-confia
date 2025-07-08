@@ -1,6 +1,6 @@
 // Hit_Diglett.h
-#ifndef HIT_DIGLETT_H
-#define HIT_DIGLETT_H
+#ifndef GOLPEAADIGLETT_H
+#define GOLPEAADIGLETT_H
 
 #include <iostream>
 #include <cstdlib>
@@ -10,74 +10,90 @@
 
 using namespace std;
 
-void showGrid(int position) {
+void mostrarGrid(int posicion) {
     system("cls");
-    cout << "Hit Diglett (press the correct number)!\n\n";
+    // (si usas mostrarCabecera, llámala aquí)
 
-    int layout[9] = {7, 8, 9, 4, 5, 6, 1, 2, 3}; // Numeric keypad layout
+    int layout[9] = {7,8,9,4,5,6,1,2,3};
+    const int width = 13;  // ajusta si cambias espaciado
 
-    for (int i = 0; i < 9; ++i) {
-        if (layout[i] == position) {
-            cout << "[D] ";
-        } else {
-            cout << "[" << layout[i] << "] ";
+    // Borde superior
+    cout << "+";
+    for (int i = 0; i < width; ++i) cout << "-";
+    cout << "+\n";
+
+    // Celdas en 3 filas
+    for (int r = 0; r < 3; ++r) {
+        cout << "| ";
+        for (int c = 0; c < 3; ++c) {
+            int idx = r*3 + c;
+            if (layout[idx] == posicion)
+                cout << "[D]";
+            else
+                cout << "[" << layout[idx] << "]";
+            cout << " ";
         }
-        if ((i + 1) % 3 == 0) cout << endl;
+        cout << "|\n";
     }
+
+    // Borde inferior
+    cout << "+";
+    for (int i = 0; i < width; ++i) cout << "-";
+    cout << "+\n\n";
 }
 
-int getRandomPosition() {
+int obtenerPosicionAleatoria() {
     return rand() % 9 + 1;
 }
 
-void applyTimePenalty(int& startTime, int penalty) {
-    startTime += penalty;
+void penalizarTiempo(int& tiempoInicio, int penalizacion) {
+    tiempoInicio += penalizacion;
 }
 
-void updateSpeed(int hits, int& speed) {
-    if (hits % 4 == 0 && speed > 400) {
-        speed -= 150;
+void actualizarVelocidad(int aciertos, int& velocidad) {
+    if (aciertos % 4 == 0 && velocidad > 400) {
+        velocidad -= 150;
     }
 }
 
 void startGame() {
     srand(time(NULL));
-    int score = 0;
-    int hits = 0;
-    int penalty = 3;            // seconds subtracted upon failure
-    int duration = 60;          // total game duration
-    int startTime = time(0);
-    int speed = 1500;           // Diglett visible time in ms
+    int puntuacion = 0;
+    int aciertos = 0;
+    int penalizacion = 3;             // seconds subtracted upon failure
+    int duracion = 60;                // total game duration
+    int tiempoInicio = time(0);
+    int velocidad = 1500;             // longer than a visible Diglett lasts
 
-    while (time(0) - startTime < duration) {
-        int diglett = getRandomPosition();
-        showGrid(diglett);
-        int appearanceTime = time(0);
-        bool successfulHit = false;
+    while (time(0) - tiempoInicio < duracion) {
+        int diglett = obtenerPosicionAleatoria();
+        mostrarGrid(diglett);
+        int tiempoAparicion = time(0);
+        bool acertado = false;
 
-        while (time(0) - appearanceTime < speed / 1000.0) {
+        while (time(0) - tiempoAparicion < velocidad / 1000.0) {
             if (_kbhit()) {
-                char key = _getch();
-                if (key == diglett + '0') {
-                    score++;
-                    hits++;
-                    updateSpeed(hits, speed);
-                    successfulHit = true;
+                char tecla = _getch();
+                if (tecla == diglett + '0') {
+                    puntuacion++;
+                    aciertos++;
+                    actualizarVelocidad(aciertos, velocidad);
+                    acertado = true;
                     break;
                 } else {
-                    applyTimePenalty(startTime, penalty);
+                    penalizarTiempo(tiempoInicio, penalizacion);
                     break;
                 }
             }
         }
 
-        if (!successfulHit) {
-            applyTimePenalty(startTime, penalty);
+        if (!acertado) {
+            penalizarTiempo(tiempoInicio, penalizacion);
         }
     }
 
     system("cls");
-    cout << "Time's up! Your final score: " << score << endl;
+    cout << "¡Time's up! Your final score: " << puntuacion << endl;
 }
 
 #endif
