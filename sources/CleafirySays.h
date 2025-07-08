@@ -1,3 +1,4 @@
+
 #ifndef CLEAFIRYSAYS_H
 #define CLEAFIRYSAYS_H
 
@@ -53,6 +54,7 @@ namespace ClefairyGame {
         cin.ignore();
     }
 
+    // Validates if the input character is one of the valid directions
     bool isValidKey(char c) {
         c = toupper(c);
         return c == 'W' || c == 'A' || c == 'S' || c == 'D';
@@ -95,18 +97,17 @@ namespace ClefairyGame {
         }
     }
 
-            inFile.close();
-            cout << "----------------------\n\n";
-        } catch (const std::exception& e) {
-            std::cerr << "⚠️ Error reading scores: " << e.what() << endl;
-        }
-    }
+    inFile.close();
+    cout << "----------------------\n\n";
+}
+
 
     void playClefairySays() {
         srand(static_cast<unsigned int>(time(0)));
 
         Player player;
         vector<char> sequence;
+        vector<char> playerInput;
         int level = 1;
         bool playing = true;
 
@@ -129,12 +130,13 @@ namespace ClefairyGame {
 
             for (char arrow : sequence) {
                 clearScreen();
-                cout << "\n🧠 Level " << level << ": Watch the arrow\n\n";
+                cout << "\n Level " << level << ": Watch the arrow\n\n";
                 showArrow(arrow);
                 waitForEnter();
             }
 
             clearScreen();
+            playerInput.clear();
             cout << "🔁 Repeat the sequence:\n";
 
             for (size_t i = 0; i < sequence.size(); ++i) {
@@ -156,7 +158,7 @@ namespace ClefairyGame {
             }
 
             if (playerInput != sequence) {
-                cout << "\n❌ Incorrect! Game over at level " << level << ".\n";
+                cout << "\n Incorrect! Game over at level " << level << ".\n";
                 playing = false;
                 player.score = level - 1;
             } else {

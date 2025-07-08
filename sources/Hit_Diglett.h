@@ -1,99 +1,151 @@
 // Hit_Diglett.h
-#ifndef GOLPEAADIGLETT_H
-#define GOLPEAADIGLETT_H
+#ifndef HIT_DIGLETT_H
+#define HIT_DIGLETT_H
 
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <conio.h>    // For _kbhit() and _getch()
-#include <windows.h>  // for Sleep()
+#include <conio.h>   // for _kbhit(), _getch()
+#include <windows.h> // for Sleep()
+#include <string>
 
 using namespace std;
 
-void mostrarGrid(int posicion) {
+void displayGrid(int position,
+                 int score,
+                 int timeLeft,
+                 int duration,
+                 int comboStreak);
+int  getRandomPosition();
+void penalizeTime(int& startTime, int penaltySeconds);
+void updateSpeed(int hits, int& speed);
+void startGame();
+
+
+
+// Draws the game grid with score, time bar and combo indicator
+void displayGrid(int position,
+                 int score,
+                 int timeLeft,
+                 int duration,
+                 int comboStreak) {
     system("cls");
-    // (si usas mostrarCabecera, llámala aquí)
+    cout << "Hit Diglett (press the correct number)!\n\n";
 
-    int layout[9] = {7,8,9,4,5,6,1,2,3};
-    const int width = 13;  // ajusta si cambias espaciado
+    // Score display
+    cout << "Score: " << score << "\n";
 
-    // Borde superior
-    cout << "+";
-    for (int i = 0; i < width; ++i) cout << "-";
-    cout << "+\n";
+    // Time bar display
+    const int BAR_WIDTH = 20;
+    int filled = timeLeft * BAR_WIDTH / duration;
+    cout << "Time : [";
+    for (int i = 0; i < BAR_WIDTH; ++i)
+        cout << (i < filled ? '=' : ' ');
+    cout << "] " << timeLeft << "s\n";
 
-    // Celdas en 3 filas
+    // Combo streak display
+    if (comboStreak > 1) {
+        cout << "  🔥 Combo x" << comboStreak << "! 🔥\n\n";
+    } else {
+        cout << "\n";
+    }
+
+    // Numeric grid with ASCII border
+    int layout[9] = {7, 8, 9, 4, 5, 6, 1, 2, 3};
+    const int WIDTH = 11;  
+
+    // Top border
+    cout << '+' << string(WIDTH, '-') << "+\n";
+
+    // Grid rows
     for (int r = 0; r < 3; ++r) {
         cout << "| ";
         for (int c = 0; c < 3; ++c) {
-            int idx = r*3 + c;
-            if (layout[idx] == posicion)
+            int idx = r * 3 + c;
+            if (layout[idx] == position)
                 cout << "[D]";
             else
                 cout << "[" << layout[idx] << "]";
-            cout << " ";
+            cout << ' ';
         }
         cout << "|\n";
     }
 
-    // Borde inferior
-    cout << "+";
-    for (int i = 0; i < width; ++i) cout << "-";
-    cout << "+\n\n";
+    
+    cout << '+' << string(WIDTH, '-') << "+\n\n";
 }
 
-int obtenerPosicionAleatoria() {
+// Returns a random keypad position 1–9
+int getRandomPosition() {
     return rand() % 9 + 1;
 }
 
-void penalizarTiempo(int& tiempoInicio, int penalizacion) {
-    tiempoInicio += penalizacion;
+// Adds penalty seconds to the start time
+void penalizeTime(int& startTime, int penaltySeconds) {
+    startTime += penaltySeconds;
 }
 
-void actualizarVelocidad(int aciertos, int& velocidad) {
-    if (aciertos % 4 == 0 && velocidad > 400) {
-        velocidad -= 150;
+// Speeds up the game every 4 hits, down to a minimum speed
+void updateSpeed(int hits, int& speed) {
+    if (hits % 4 == 0 && speed > 400) {
+        speed -= 150;
     }
 }
 
+// Main game loop
 void startGame() {
-    srand(time(NULL));
-    int puntuacion = 0;
-    int aciertos = 0;
-    int penalizacion = 3;             // seconds subtracted upon failure
-    int duracion = 60;                // total game duration
-    int tiempoInicio = time(0);
-    int velocidad = 1500;             // longer than a visible Diglett lasts
+    srand(static_cast<unsigned int>(time(nullptr)));
+    int score        = 0;
+    int hits         = 0;
+    int comboStreak  = 0;     // consecutive hits
+    int penaltySec   = 3;     // seconds subtracted on miss
+    int duration     = 60;    // total game time in seconds
+    int startTime    = time(nullptr);
+    int speed        = 1500;  // milliseconds per Diglett appearance
 
-    while (time(0) - tiempoInicio < duracion) {
-        int diglett = obtenerPosicionAleatoria();
-        mostrarGrid(diglett);
-        int tiempoAparicion = time(0);
-        bool acertado = false;
+    while (time(nullptr) - startTime < duration) {
+        int diglettPos = getRandomPosition();
 
-        while (time(0) - tiempoAparicion < velocidad / 1000.0) {
+        // Calculate remaining time
+        int elapsed  = time(nullptr) - startTime;
+        int timeLeft = duration - elapsed;
+        if (timeLeft < 0) timeLeft = 0;
+
+        // Display grid, score, time and combo
+        displayGrid(diglettPos, score, timeLeft, duration, comboStreak);
+
+        int appearTime = time(nullptr);
+        bool hit       = false;
+
+        // Wait for key press until timeout
+        while (time(nullptr) - appearTime < speed / 1000.0) {
             if (_kbhit()) {
-                char tecla = _getch();
-                if (tecla == diglett + '0') {
-                    puntuacion++;
-                    aciertos++;
-                    actualizarVelocidad(aciertos, velocidad);
-                    acertado = true;
-                    break;
+                char key = _getch();
+                if (key == diglettPos + '0') {
+                    // Hit
+                    score++;
+                    hits++;
+                    comboStreak++;
+                    updateSpeed(hits, speed);
+                    hit = true;
                 } else {
-                    penalizarTiempo(tiempoInicio, penalizacion);
-                    break;
+                    // Miss
+                    penalizeTime(startTime, penaltySec);
+                    comboStreak = 0;
                 }
+                break;
             }
         }
 
-        if (!acertado) {
-            penalizarTiempo(tiempoInicio, penalizacion);
+        // If nobody pressed or timed out
+        if (!hit) {
+            penalizeTime(startTime, penaltySec);
+            comboStreak = 0;
         }
     }
 
     system("cls");
-    cout << "¡Time's up! Your final score: " << puntuacion << endl;
+    cout << "Time's up! Your final score: " << score << endl;
 }
 
-#endif
+#endif // HIT_DIGLETT_H
